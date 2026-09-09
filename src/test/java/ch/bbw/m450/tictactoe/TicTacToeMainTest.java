@@ -11,12 +11,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests für die Kernlogik von {@link TicTacToeMain}, dokumentiert nach dem
- * GIVEN_WHEN_THEN-Muster (siehe auch TESTS.md im Projekt-Root).
+ * GIVEN_WHEN_THEN-Muster (siehe auch testDescription.md im Projekt-Root).
  */
 class TicTacToeMainTest {
 
     @Test
-    @DisplayName("GIVEN ein leeres Spielfeld WHEN auf Sieg prüfen von CIRCLE oder CROSS THEN es gibt keinen Gewinner")
+    @DisplayName("GIVEN ein komplett leeres Spielfeld WHEN geprüft wird ob CIRCLE oder CROSS gewonnen hat THEN gewinnt keiner")
     void emptyBoardHasNoWinner() {
         // GIVEN
         Stone[] board = new Stone[TicTacToeMain.BOARD_SIZE];

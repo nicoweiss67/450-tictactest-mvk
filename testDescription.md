@@ -1,7 +1,7 @@
-Test 1 – Leeres Spielfeld hat keinen Gewinner
+Test 1
 GIVEN ein komplett leeres Spielfeld
 WHEN geprüft wird, ob CROSS oder CIRCLE gewonnen hat
-THEN liefert isWin(...) für beide Farben false
+THEN liefert isWin(...) für beide Symbole false
 
 Test 2 – Oberste Reihe gewinnt für CROSS
 GIVEN ein Feld, bei dem die oberste Reihe (Index 0, 1, 2) vollständig mit CROSS belegt ist
