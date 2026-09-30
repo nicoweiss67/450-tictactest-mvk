@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TicTacTest – Coverage Trend</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    .meta { color: #555; }
+    table { border-collapse: collapse; margin-top: 1.5rem; width: 100%; }
+    th, td { border-bottom: 1px solid #ddd; padding: .35rem .6rem; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>Test Coverage auf <code>main</code></h1>
+  <p class="meta" id="latest">Lade Daten …</p>
+  <canvas id="chart" height="110"></canvas>
+  <p><a href="report/index.html">Aktueller JaCoCo HTML-Report</a> ·
+     <a href="history.csv">history.csv</a></p>
+  <table id="table"><thead><tr><th>Datum</th><th>Commit</th><th>Line Coverage</th></tr></thead><tbody></tbody></table>
+
+  <script>
+    fetch('history.csv', { cache: 'no-store' })
+      .then(r => r.text())
+      .then(text => {
+        const rows = text.trim().split('\n').slice(1)
+          .map(l => l.split(','))
+          .filter(r => r.length >= 3)
+          .map(([date, commit, cov]) => ({ date, commit, cov: parseFloat(cov) }));
+        const last = rows[rows.length - 1];
+        document.getElementById('latest').textContent = last
+          ? `Aktuell: ${last.cov.toFixed(1)} % (Commit ${last.commit}, ${last.date})`
+          : 'Noch keine Daten.';
+        new Chart(document.getElementById('chart'), {
+          type: 'line',
+          data: {
+            labels: rows.map(r => `${r.date} (${r.commit})`),
+            datasets: [{ label: 'Line Coverage %', data: rows.map(r => r.cov), tension: .2, fill: false }]
+          },
+          options: { scales: { y: { min: 0, max: 100, title: { display: true, text: '%' } } } }
+        });
+        const tbody = document.querySelector('#table tbody');
+        rows.slice().reverse().forEach(r => {
+          const tr = document.createElement('tr');
+          [r.date, r.commit, r.cov.toFixed(1) + ' %'].forEach(v => {
+            const td = document.createElement('td'); td.textContent = v; tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(e => { document.getElementById('latest').textContent = 'Fehler beim Laden: ' + e; });
+  </script>
+</body>
+</html>
