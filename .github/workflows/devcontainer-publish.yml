@@ -68,6 +68,9 @@ jobs:
       - name: Pull Request erstellen
         uses: peter-evans/create-pull-request@v7
         with:
+          # GITHUB_TOKEN darf keine Dateien unter .github/workflows ändern -> eigenes PAT
+          # (Scopes: Contents, Pull requests, Workflows). Als Repo-Secret PAT_TOKEN hinterlegen.
+          token: ${{ secrets.PAT_TOKEN }}
           branch: devcontainer/update-${{ needs.build-and-push.outputs.tag }}
           title: "DevContainer auf ${{ needs.build-and-push.outputs.tag }} aktualisieren"
           commit-message: "chore: DevContainer-Image auf ${{ needs.build-and-push.outputs.tag }} aktualisieren"
