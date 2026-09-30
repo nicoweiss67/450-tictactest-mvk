@@ -108,6 +108,8 @@ class TicTacToePlayTest {
         assertThatThrownBy(() -> TicTacToeMain.play(new ScriptedPlayer(move), new ScriptedPlayer(0)))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("cannot play to position " + move);
+        // das Board wird vor der Exception ausgegeben
+        assertThat(out.toString(StandardCharsets.UTF_8)).contains("\033[37m0\033[0m");
     }
 
     @Test
