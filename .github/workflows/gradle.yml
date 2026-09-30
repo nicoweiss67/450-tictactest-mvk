@@ -36,7 +36,7 @@ jobs:
         run: ./gradlew assemble --no-daemon
  
       - name: Test
-        run: ./gradlew test --no-daemon
+        run: ./gradlew test jacocoTestReport --no-daemon
  
       - name: Testergebnisse hochladen
         if: always()
@@ -44,4 +44,10 @@ jobs:
         with:
           name: test-results
           path: '**/build/test-results/test/*.xml'
- 
+
+      - name: JaCoCo HTML-Report hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-html-report
+          path: build/reports/jacoco/test/html
