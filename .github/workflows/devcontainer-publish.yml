@@ -1,0 +1,78 @@
+name: Publish DevContainer
+
+# Baut das Image aus .devcontainer/Dockerfile, pusht es in die GitHub Container
+# Registry und öffnet danach einen PR, der devcontainer.json und alle CI-Workflows
+# auf den neuen Tag umstellt.
+# Der paths-Filter verhindert eine Endlosschleife: der PR ändert das Dockerfile nicht.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.devcontainer/Dockerfile'
+      - '.github/workflows/devcontainer-publish.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+
+      - name: Image-Name und Tag bestimmen
+        id: meta
+        run: |
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/450-tictactest-mvk-devcontainer" >> "$GITHUB_OUTPUT"
+          echo "tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Bei ghcr.io anmelden
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image bauen und pushen
+        uses: docker/build-push-action@v6
+        with:
+          context: .devcontainer
+          file: .devcontainer/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.image }}:latest
+
+  update-references:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+
+      - name: Image-Tag in devcontainer.json und CI-Workflows ersetzen
+        run: |
+          IMAGE="${{ needs.build-and-push.outputs.image }}"
+          TAG="${{ needs.build-and-push.outputs.tag }}"
+          grep -rlE "${IMAGE}:[A-Za-z0-9._-]+" .devcontainer/devcontainer.json .github/workflows \
+            | xargs sed -i -E "s|${IMAGE}:[A-Za-z0-9._-]+|${IMAGE}:${TAG}|g"
+
+      - name: Pull Request erstellen
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: devcontainer/update-${{ needs.build-and-push.outputs.tag }}
+          title: "DevContainer auf ${{ needs.build-and-push.outputs.tag }} aktualisieren"
+          commit-message: "chore: DevContainer-Image auf ${{ needs.build-and-push.outputs.tag }} aktualisieren"
+          body: |
+            Neues DevContainer-Image wurde in ghcr.io veröffentlicht:
+            `${{ needs.build-and-push.outputs.image }}:${{ needs.build-and-push.outputs.tag }}`
+
+            Dieser PR stellt `devcontainer.json` und alle CI-Workflows darauf um.

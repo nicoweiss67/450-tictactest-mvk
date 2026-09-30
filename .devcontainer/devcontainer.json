@@ -1,0 +1,14 @@
+{
+  "name": "TicTacTest DevContainer",
+  "image": "ghcr.io/nicoweiss67/450-tictactest-mvk-devcontainer:latest",
+  "remoteUser": "nico",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-gradle"
+      ]
+    }
+  },
+  "postCreateCommand": "java -version && gradle --version"
+}

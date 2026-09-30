@@ -5,19 +5,23 @@ on:
     branches:
       - '**'
  
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/nicoweiss67/450-tictactest-mvk-devcontainer:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      options: --user root
  
     steps:
       - name: Code auschecken
         uses: actions/checkout@v4
- 
-      - name: JDK einrichten
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
  
       - name: Gradle Wrapper ausführbar machen
         run: chmod +x ./gradlew
