@@ -1,17 +1,15 @@
 name: Publish DevContainer
 
-# Baut das Image aus .devcontainer/Dockerfile, pusht es in die GitHub Container
-# Registry und öffnet danach einen PR, der devcontainer.json und alle CI-Workflows
-# auf den neuen Tag umstellt.
-# Der paths-Filter verhindert eine Endlosschleife: der PR ändert das Dockerfile nicht.
+# Freigabe-Prozess: Ein DevContainer-Release entsteht NUR durch einen Git-Tag vX.Y.Z
+# auf einem Commit, der in main enthalten ist. Der Workflow baut dann das Image, pusht
+# es als :vX.Y.Z (und :latest) in die GitHub Container Registry und öffnet danach einen
+# PR, der devcontainer.json und alle CI-Workflows auf diese Version umstellt.
+# Ein normaler Push auf main veröffentlicht nichts -> keine unfreigegebenen Images.
+# Details: docs/devcontainer.md
 on:
   push:
-    branches:
-      - main
-    paths:
-      - '.devcontainer/Dockerfile'
-      - '.github/workflows/devcontainer-publish.yml'
-  workflow_dispatch:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 permissions:
   contents: write
@@ -27,12 +25,20 @@ jobs:
     steps:
       - name: Code auschecken
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Freigabe prüfen (Tag muss auf main liegen)
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main \
+            || { echo "::error::Tag $GITHUB_REF_NAME liegt nicht auf main - keine Freigabe"; exit 1; }
 
       - name: Image-Name und Tag bestimmen
         id: meta
         run: |
           echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/450-tictactest-mvk-devcontainer" >> "$GITHUB_OUTPUT"
-          echo "tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Bei ghcr.io anmelden
         uses: docker/login-action@v3
@@ -55,8 +61,10 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Code auschecken
+      - name: Code auschecken (main)
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Image-Tag in devcontainer.json und CI-Workflows ersetzen
         run: |
@@ -71,6 +79,7 @@ jobs:
           # GITHUB_TOKEN darf keine Dateien unter .github/workflows ändern -> eigenes PAT
           # (Scopes: Contents, Pull requests, Workflows). Als Repo-Secret PAT_TOKEN hinterlegen.
           token: ${{ secrets.PAT_TOKEN }}
+          base: main
           branch: devcontainer/update-${{ needs.build-and-push.outputs.tag }}
           title: "DevContainer auf ${{ needs.build-and-push.outputs.tag }} aktualisieren"
           commit-message: "chore: DevContainer-Image auf ${{ needs.build-and-push.outputs.tag }} aktualisieren"
