@@ -1,6 +1,6 @@
 {
   "name": "TicTacTest DevContainer",
-  "image": "ghcr.io/nicoweiss67/450-tictactest-mvk-devcontainer:latest",
+  "image": "ghcr.io/nicoweiss67/450-tictactest-mvk-devcontainer:sha-fa2903e",
   "remoteUser": "nico",
   "customizations": {
     "vscode": {

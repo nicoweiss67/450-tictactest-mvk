@@ -13,7 +13,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/nicoweiss67/450-tictactest-mvk-devcontainer:latest
+      image: ghcr.io/nicoweiss67/450-tictactest-mvk-devcontainer:sha-fa2903e
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
