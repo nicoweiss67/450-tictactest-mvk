@@ -98,7 +98,7 @@ class TicTacToePlayTest {
         var o = new ScriptedPlayer(1, 4, 5, 6);
 
         assertThat(TicTacToeMain.play(x, o)).isNull();
-        assertThat(out.toString(StandardCharsets.UTF_8)).contains("draw");
+        assertThat(out.toString(StandardCharsets.UTF_8)).contains("Draw");
     }
 
     @ParameterizedTest(name = "ungültiger Zug {0} => IllegalStateException")
