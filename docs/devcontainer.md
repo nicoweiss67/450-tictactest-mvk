@@ -10,7 +10,8 @@ in der CI über `container:` in `.github/workflows/gradle.yml` und `coverage-tre
 
 ## Versionierungskonzept
 
-Semantic Versioning `vMAJOR.MINOR.PATCH`:
+Semantic Versioning `MAJOR.MINOR.PATCH`, als Git-Tag mit Präfix `devcontainer-v`
+(das Präfix trennt sie von den App-Releases `vX.Y.Z`, siehe [RELEASE.md](../RELEASE.md)):
 
 | Änderung | Beispiel | Version |
 |---|---|---|
@@ -20,7 +21,7 @@ Semantic Versioning `vMAJOR.MINOR.PATCH`:
 
 ## Freigabe: nur getaggte Versionen
 
-Ein Image ist nur dann **freigegeben**, wenn ein Git-Tag `vX.Y.Z` darauf zeigt. Es wird
+Ein Image ist nur dann **freigegeben**, wenn ein Git-Tag `devcontainer-vX.Y.Z` darauf zeigt. Es wird
 bewusst **nicht** bei jedem Push auf `main` veröffentlicht, sonst wäre jede ungeprüfte
 Änderung sofort in CI und lokal im Einsatz.
 
@@ -35,13 +36,13 @@ damit ein Build reproduzierbar ist und nur freigegebene Images verwendet werden.
 2. Release taggen und pushen:
    ```bash
    git checkout main && git pull
-   git tag v1.1.0
-   git push origin v1.1.0
+   git tag devcontainer-v1.1.0
+   git push origin devcontainer-v1.1.0
    ```
 3. Der Workflow `.github/workflows/devcontainer-publish.yml` startet:
    1. prüft, dass der Tag auf `main` liegt,
-   2. baut das Image und pusht `:v1.1.0` und `:latest` nach ghcr.io,
-   3. öffnet automatisch einen Pull Request (Branch `devcontainer/update-v1.1.0`), der die
+   2. baut das Image und pusht `:devcontainer-v1.1.0` und `:latest` nach ghcr.io,
+   3. öffnet automatisch einen Pull Request (Branch `devcontainer/update-devcontainer-v1.1.0`), der die
       Version in `devcontainer.json` und allen CI-Workflows ersetzt.
 4. Den PR prüfen (die CI läuft darin bereits im neuen Container) und mergen.
 5. Danach nutzen **alle CI-Jobs** die neue Version. **Lokal** baut VS Code beim nächsten
