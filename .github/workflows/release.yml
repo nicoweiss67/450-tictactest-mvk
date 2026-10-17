@@ -1,0 +1,83 @@
+name: Release
+
+# Ein Release entsteht NUR durch einen bewusst gepushten Tag vX.Y.Z, nie durch einen
+# normalen Push auf main. Details: RELEASE.md
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Version bestimmen
+        run: |
+          echo "TAG=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+          echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - name: Prüfen, dass der Tag auf main liegt
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main \
+            || { echo "::error::Tag $TAG liegt nicht auf main"; exit 1; }
+
+      - name: Prüfen, dass das Changelog die Version enthält
+        run: |
+          grep -qE "^## ${VERSION//./\\.} - " CHANGELOG.md \
+            || { echo "::error::CHANGELOG.md hat keinen Abschnitt '## $VERSION - <Datum>'"; exit 1; }
+
+      - name: JDK einrichten
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+
+      - name: Tests ausführen
+        run: |
+          chmod +x ./gradlew
+          ./gradlew test --no-daemon
+
+      - name: JAR bauen
+        run: ./gradlew jar -PreleaseVersion="$VERSION" --no-daemon
+
+      - name: JAR testen (Smoke-Test)
+        run: |
+          JAR="build/libs/tictactest-${VERSION}.jar"
+          test -f "$JAR"
+          printf '4\n2\n6\n' | java -jar "$JAR" | tee smoke.log
+          grep -q "the winner is: CROSS" smoke.log
+
+      - name: Release-Text aus dem Changelog erzeugen
+        run: |
+          {
+            echo "Release: TicTacTest $TAG"
+            echo
+            echo "**Tag:** \`$TAG\`  "
+            echo "**Commit:** \`$GITHUB_SHA\`  "
+            echo "**Artefakt:** \`tictactest-${VERSION}.jar\` (Start: \`java -jar tictactest-${VERSION}.jar\`)"
+            echo
+            echo "## Änderungen"
+            awk -v v="$VERSION" '
+              $0 ~ "^## " { if (found) exit; if (index($0, "## " v " - ") == 1) { found=1; next } }
+              found { print }
+            ' CHANGELOG.md
+          } > release-notes.md
+          cat release-notes.md
+
+      - name: GitHub Release erstellen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$TAG" "build/libs/tictactest-${VERSION}.jar" \
+            --title "TicTacTest $TAG" \
+            --notes-file release-notes.md \
+            --verify-tag

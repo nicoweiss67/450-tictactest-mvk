@@ -1,15 +1,15 @@
 name: Publish DevContainer
 
-# Freigabe-Prozess: Ein DevContainer-Release entsteht NUR durch einen Git-Tag vX.Y.Z
+# Freigabe-Prozess: Ein DevContainer-Release entsteht NUR durch einen Git-Tag devcontainer-vX.Y.Z
 # auf einem Commit, der in main enthalten ist. Der Workflow baut dann das Image, pusht
-# es als :vX.Y.Z (und :latest) in die GitHub Container Registry und öffnet danach einen
+# es als :devcontainer-vX.Y.Z (und :latest) in die GitHub Container Registry und öffnet danach einen
 # PR, der devcontainer.json und alle CI-Workflows auf diese Version umstellt.
 # Ein normaler Push auf main veröffentlicht nichts -> keine unfreigegebenen Images.
 # Details: docs/devcontainer.md
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'devcontainer-v[0-9]+.[0-9]+.[0-9]+'
 
 permissions:
   contents: write
