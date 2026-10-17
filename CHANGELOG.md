@@ -4,7 +4,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung 
 [Semantic Versioning](https://semver.org/lang/de/). Jede Release-Version braucht hier einen
 Abschnitt `## X.Y.Z - JJJJ-MM-TT` (der Release-Workflow bricht sonst ab).
 
-## 1.0.0 - 2026-10-17
+## 1.0.1 - 2026-10-17
 
 ### Added
 - Erste veröffentlichte Version von TicTacTest als ausführbares JAR (`java -jar tictactest-1.0.0.jar`)
@@ -16,6 +16,7 @@ Abschnitt `## X.Y.Z - JJJJ-MM-TT` (der Release-Workflow bricht sonst ab).
 
 ### Changed
 - CI läuft im eigenen DevContainer-Image aus der GitHub Container Registry
+- draw auf "Draw" umbennant
 
 ### Fixed
 - Eingabe über Pipe oder Datei (`... | java -jar tictactest.jar`) wurde nach dem ersten Zug nicht mehr gelesen
