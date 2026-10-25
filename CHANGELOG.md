@@ -4,10 +4,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung 
 [Semantic Versioning](https://semver.org/lang/de/). Jede Release-Version braucht hier einen
 Abschnitt `## X.Y.Z - JJJJ-MM-TT` (der Release-Workflow bricht sonst ab).
 
+## 1.0.2 - 25.10.2026
+
+### Changed
+- Ausgabe bei gewinnen von "...and the winner is:" zu "...and the great winner is:"
+
 ## 1.0.1 - 2026-10-18
 
 ### Changed
-- Ausgabe bei Unentschieden von "draw" auf "Draw" umbennant 
+- Ausgabe bei Unentschieden von "draw" auf "Draw" umbennant
 
 ## 1.0.0 - 2026-10-17
 
