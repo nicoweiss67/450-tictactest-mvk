@@ -54,7 +54,7 @@ jobs:
           JAR="build/libs/tictactest-${VERSION}.jar"
           test -f "$JAR"
           printf '4\n2\n6\n' | java -jar "$JAR" | tee smoke.log
-          grep -q "the winner is: CROSS" smoke.log
+          grep -q "the great winner is: CROSS" smoke.log
 
       - name: Release-Text aus dem Changelog erzeugen
         run: |
