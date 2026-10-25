@@ -82,7 +82,7 @@ public class TicTacToeMain {
 			}
 			board[playTo] = currentColor; // do the move
 			if (isWin(board, currentColor)) { // game over and current player wins
-				System.out.println(toString(board) + "...and the winner is: " + currentColor);
+				System.out.println(toString(board) + "...and the great winner is: " + currentColor);
 				return currentColor;
 			}
 			currentPlayer = currentPlayer == xPlayer ? oPlayer : xPlayer;

@@ -78,7 +78,7 @@ class TicTacToePlayTest {
         var o = new ScriptedPlayer(3, 4);
 
         assertThat(TicTacToeMain.play(x, o)).isEqualTo(Stone.CROSS);
-        assertThat(out.toString(StandardCharsets.UTF_8)).contains("the winner is: CROSS");
+        assertThat(out.toString(StandardCharsets.UTF_8)).contains("the great winner is: CROSS");
     }
 
     @Test
@@ -167,6 +167,6 @@ class TicTacToePlayTest {
 
         TicTacToeMain.main(new String[0]);
 
-        assertThat(out.toString(StandardCharsets.UTF_8)).contains("the winner is: CROSS");
+        assertThat(out.toString(StandardCharsets.UTF_8)).contains("the great winner is: CROSS");
     }
 }
